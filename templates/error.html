@@ -1,0 +1,3 @@
+{% extends 'base.html' %}{% block title %}Request {{ code }}{% endblock %}
+{% macro error_content() %}<section class="panel error-panel"><span class="error-code">{{ code }}</span><h1>{{ 'Access denied' if code == 403 else 'Request could not be completed' }}</h1><p>{{ reason.replace('_',' ') }}</p><p class="muted">No confidential invoice data is included in this response.</p><a class="button secondary" href="{{ url_for('web.dashboard') if current_user.is_authenticated else url_for('auth.login') }}">{{ 'Back to overview' if current_user.is_authenticated else 'Sign in' }}</a></section>{% endmacro %}
+{% block content %}{{ error_content() }}{% endblock %}{% block public_content %}<div class="public-error">{{ error_content() }}</div>{% endblock %}

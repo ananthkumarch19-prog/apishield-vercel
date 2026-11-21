@@ -1,0 +1,716 @@
+{
+  "application": "APIShield",
+  "started_at": "2026-11-14T14:25:26.971465+00:00",
+  "completed_at": "2026-11-14T14:25:27.367493+00:00",
+  "group": "all",
+  "transport": "real HTTP via Python Requests on 127.0.0.1",
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  "scope": "Disposable fictional database; dashboard invoices were not modified",
+  "total": 15,
+  "passed": 15,
+  "failed": 0,
+  "results": [
+    {
+      "test_id": "A",
+      "scenario": "Normal authorized access",
+      "actor": "Alice / Alpha employee",
+      "method": "GET",
+      "resource": "/api/invoices/1001",
+      "expected_status": 200,
+      "actual_status": 200,
+      "expected_behavior": "Return Alpha's invoice to Alice",
+      "observed_behavior": "http_status_matches=True; correct_company=True",
+      "reason": "same_company_and_permitted_role",
+      "checks": {
+        "http_status_matches": true,
+        "correct_company": true
+      },
+      "passed": true,
+      "response": {
+        "invoice": {
+          "amount": "42500.00",
+          "company_id": 1,
+          "created_at": "2026-11-01T09:00:00+00:00",
+          "currency": "INR",
+          "customer_name": "Cedar Office Supplies",
+          "id": 1001,
+          "invoice_number": "INV-1001",
+          "status": "pending"
+        },
+        "reason": "same_company_and_permitted_role"
+      }
+    },
+    {
+      "test_id": "B-L",
+      "scenario": "BOLA read through vulnerable lab",
+      "actor": "Alice / Alpha employee",
+      "method": "GET",
+      "resource": "/lab/invoices/2001",
+      "expected_status": 200,
+      "actual_status": 200,
+      "expected_behavior": "Demonstrate unauthorized Beta data exposure",
+      "observed_behavior": "http_status_matches=True; beta_data_exposed=True",
+      "reason": "lab_missing_object_check",
+      "checks": {
+        "http_status_matches": true,
+        "beta_data_exposed": true
+      },
+      "passed": true,
+      "response": {
+        "invoice": {
+          "amount": "96000.00",
+          "company_id": 2,
+          "created_at": "2026-11-02T09:20:00+00:00",
+          "currency": "INR",
+          "customer_name": "Orchid Logistics",
+          "id": 2001,
+          "invoice_number": "INV-2001",
+          "status": "pending"
+        },
+        "reason": "lab_missing_object_check",
+        "warning": "Fictional local lab: authorization deliberately bypassed"
+      }
+    },
+    {
+      "test_id": "B-P",
+      "scenario": "Same BOLA read through protected API",
+      "actor": "Alice / Alpha employee",
+      "method": "GET",
+      "resource": "/api/invoices/2001",
+      "expected_status": 403,
+      "actual_status": 403,
+      "expected_behavior": "Deny without returning Beta invoice data",
+      "observed_behavior": "http_status_matches=True; no_confidential_invoice_fields=True; no_target_values=True",
+      "reason": "company_mismatch",
+      "checks": {
+        "http_status_matches": true,
+        "no_confidential_invoice_fields": true,
+        "no_target_values": true
+      },
+      "passed": true,
+      "response": {
+        "error": "Access denied",
+        "reason": "company_mismatch"
+      }
+    },
+    {
+      "test_id": "C-P",
+      "scenario": "Cross-company modification blocked",
+      "actor": "Alice / Alpha employee",
+      "method": "PATCH",
+      "resource": "/api/invoices/2001",
+      "expected_status": 403,
+      "actual_status": 403,
+      "expected_behavior": "Deny and leave every invoice field unchanged",
+      "observed_behavior": "http_status_matches=True; no_confidential_invoice_fields=True; no_target_values=True; database_unchanged=True",
+      "reason": "company_mismatch",
+      "checks": {
+        "http_status_matches": true,
+        "no_confidential_invoice_fields": true,
+        "no_target_values": true,
+        "database_unchanged": true
+      },
+      "passed": true,
+      "response": {
+        "error": "Access denied",
+        "reason": "company_mismatch"
+      },
+      "before": {
+        "id": 2001,
+        "company_id": 2,
+        "invoice_number": "INV-2001",
+        "customer_name": "Orchid Logistics",
+        "amount": 9600000,
+        "status": "pending",
+        "created_at": "2026-11-02T09:20:00+00:00"
+      },
+      "after": {
+        "id": 2001,
+        "company_id": 2,
+        "invoice_number": "INV-2001",
+        "customer_name": "Orchid Logistics",
+        "amount": 9600000,
+        "status": "pending",
+        "created_at": "2026-11-02T09:20:00+00:00"
+      }
+    },
+    {
+      "test_id": "C-L",
+      "scenario": "Same modification through vulnerable lab",
+      "actor": "Alice / Alpha employee",
+      "method": "PATCH",
+      "resource": "/lab/invoices/2001",
+      "expected_status": 200,
+      "actual_status": 200,
+      "expected_behavior": "Demonstrate unauthorized update in disposable DB",
+      "observed_behavior": "http_status_matches=True; unauthorized_amount_applied=True; database_changed=True",
+      "reason": "lab_missing_object_and_role_checks",
+      "checks": {
+        "http_status_matches": true,
+        "unauthorized_amount_applied": true,
+        "database_changed": true
+      },
+      "passed": true,
+      "response": {
+        "invoice": {
+          "amount": "1.00",
+          "company_id": 2,
+          "created_at": "2026-11-02T09:20:00+00:00",
+          "currency": "INR",
+          "customer_name": "Orchid Logistics",
+          "id": 2001,
+          "invoice_number": "INV-2001",
+          "status": "pending"
+        },
+        "reason": "lab_missing_object_and_role_checks",
+        "warning": "Fictional local lab: authorization deliberately bypassed"
+      },
+      "before": {
+        "id": 2001,
+        "company_id": 2,
+        "invoice_number": "INV-2001",
+        "customer_name": "Orchid Logistics",
+        "amount": 9600000,
+        "status": "pending",
+        "created_at": "2026-11-02T09:20:00+00:00"
+      },
+      "after": {
+        "id": 2001,
+        "company_id": 2,
+        "invoice_number": "INV-2001",
+        "customer_name": "Orchid Logistics",
+        "amount": 100,
+        "status": "pending",
+        "created_at": "2026-11-02T09:20:00+00:00"
+      }
+    },
+    {
+      "test_id": "D",
+      "scenario": "Unauthenticated request",
+      "actor": "No authenticated session",
+      "method": "GET",
+      "resource": "/api/invoices/1001",
+      "expected_status": 401,
+      "actual_status": 401,
+      "expected_behavior": "Reject before returning an invoice",
+      "observed_behavior": "http_status_matches=True; no_confidential_invoice_fields=True; no_target_values=True",
+      "reason": "authentication_required",
+      "checks": {
+        "http_status_matches": true,
+        "no_confidential_invoice_fields": true,
+        "no_target_values": true
+      },
+      "passed": true,
+      "response": {
+        "error": "Authentication required",
+        "reason": "authentication_required"
+      }
+    },
+    {
+      "test_id": "E",
+      "scenario": "Authorized company administrator update",
+      "actor": "Alpha Admin / Alpha administrator",
+      "method": "PATCH",
+      "resource": "/api/invoices/1001",
+      "expected_status": 200,
+      "actual_status": 200,
+      "expected_behavior": "Update own-company amount to INR 45,250.00",
+      "observed_behavior": "http_status_matches=True; requested_amount_applied=True; database_changed=True",
+      "reason": "same_company_and_permitted_role",
+      "checks": {
+        "http_status_matches": true,
+        "requested_amount_applied": true,
+        "database_changed": true
+      },
+      "passed": true,
+      "response": {
+        "invoice": {
+          "amount": "45250.00",
+          "company_id": 1,
+          "created_at": "2026-11-01T09:00:00+00:00",
+          "currency": "INR",
+          "customer_name": "Cedar Office Supplies",
+          "id": 1001,
+          "invoice_number": "INV-1001",
+          "status": "pending"
+        },
+        "reason": "same_company_and_permitted_role"
+      },
+      "before": {
+        "id": 1001,
+        "company_id": 1,
+        "invoice_number": "INV-1001",
+        "customer_name": "Cedar Office Supplies",
+        "amount": 4250000,
+        "status": "pending",
+        "created_at": "2026-11-01T09:00:00+00:00"
+      },
+      "after": {
+        "id": 1001,
+        "company_id": 1,
+        "invoice_number": "INV-1001",
+        "customer_name": "Cedar Office Supplies",
+        "amount": 4525000,
+        "status": "pending",
+        "created_at": "2026-11-01T09:00:00+00:00"
+      }
+    },
+    {
+      "test_id": "F",
+      "scenario": "Cross-company administrator read",
+      "actor": "Alpha Admin / Alpha administrator",
+      "method": "GET",
+      "resource": "/api/invoices/2001",
+      "expected_status": 403,
+      "actual_status": 403,
+      "expected_behavior": "Company admin receives no global privilege",
+      "observed_behavior": "http_status_matches=True; no_confidential_invoice_fields=True; no_target_values=True",
+      "reason": "company_mismatch",
+      "checks": {
+        "http_status_matches": true,
+        "no_confidential_invoice_fields": true,
+        "no_target_values": true
+      },
+      "passed": true,
+      "response": {
+        "error": "Access denied",
+        "reason": "company_mismatch"
+      }
+    },
+    {
+      "test_id": "F-P",
+      "scenario": "Cross-company administrator update",
+      "actor": "Alpha Admin / Alpha administrator",
+      "method": "PATCH",
+      "resource": "/api/invoices/2001",
+      "expected_status": 403,
+      "actual_status": 403,
+      "expected_behavior": "Deny and preserve the Beta record",
+      "observed_behavior": "http_status_matches=True; no_confidential_invoice_fields=True; no_target_values=True; database_unchanged=True",
+      "reason": "company_mismatch",
+      "checks": {
+        "http_status_matches": true,
+        "no_confidential_invoice_fields": true,
+        "no_target_values": true,
+        "database_unchanged": true
+      },
+      "passed": true,
+      "response": {
+        "error": "Access denied",
+        "reason": "company_mismatch"
+      },
+      "before": {
+        "id": 2001,
+        "company_id": 2,
+        "invoice_number": "INV-2001",
+        "customer_name": "Orchid Logistics",
+        "amount": 9600000,
+        "status": "pending",
+        "created_at": "2026-11-02T09:20:00+00:00"
+      },
+      "after": {
+        "id": 2001,
+        "company_id": 2,
+        "invoice_number": "INV-2001",
+        "customer_name": "Orchid Logistics",
+        "amount": 9600000,
+        "status": "pending",
+        "created_at": "2026-11-02T09:20:00+00:00"
+      }
+    },
+    {
+      "test_id": "G",
+      "scenario": "Nonexistent invoice",
+      "actor": "Alice / Alpha employee",
+      "method": "GET",
+      "resource": "/api/invoices/999999",
+      "expected_status": 404,
+      "actual_status": 404,
+      "expected_behavior": "Return not found without data",
+      "observed_behavior": "http_status_matches=True; no_confidential_invoice_fields=True; no_target_values=True",
+      "reason": "resource_not_found",
+      "checks": {
+        "http_status_matches": true,
+        "no_confidential_invoice_fields": true,
+        "no_target_values": true
+      },
+      "passed": true,
+      "response": {
+        "error": "Not found",
+        "reason": "resource_not_found"
+      }
+    },
+    {
+      "test_id": "H",
+      "scenario": "Forged company and role claims",
+      "actor": "Alice / Alpha employee",
+      "method": "GET",
+      "resource": "/api/invoices/2001?company_id=2&user_id=4&role=admin",
+      "expected_status": 403,
+      "actual_status": 403,
+      "expected_behavior": "Use session identity and database permissions",
+      "observed_behavior": "http_status_matches=True; no_confidential_invoice_fields=True; no_target_values=True",
+      "reason": "company_mismatch",
+      "checks": {
+        "http_status_matches": true,
+        "no_confidential_invoice_fields": true,
+        "no_target_values": true
+      },
+      "passed": true,
+      "response": {
+        "error": "Access denied",
+        "reason": "company_mismatch"
+      }
+    },
+    {
+      "test_id": "H-P",
+      "scenario": "Forged ownership in PATCH body",
+      "actor": "Alice / Alpha employee",
+      "method": "PATCH",
+      "resource": "/api/invoices/2001",
+      "expected_status": 403,
+      "actual_status": 403,
+      "expected_behavior": "Reject before submitted identity can change permissions",
+      "observed_behavior": "http_status_matches=True; no_confidential_invoice_fields=True; no_target_values=True; database_unchanged=True",
+      "reason": "company_mismatch",
+      "checks": {
+        "http_status_matches": true,
+        "no_confidential_invoice_fields": true,
+        "no_target_values": true,
+        "database_unchanged": true
+      },
+      "passed": true,
+      "response": {
+        "error": "Access denied",
+        "reason": "company_mismatch"
+      },
+      "before": {
+        "id": 2001,
+        "company_id": 2,
+        "invoice_number": "INV-2001",
+        "customer_name": "Orchid Logistics",
+        "amount": 9600000,
+        "status": "pending",
+        "created_at": "2026-11-02T09:20:00+00:00"
+      },
+      "after": {
+        "id": 2001,
+        "company_id": 2,
+        "invoice_number": "INV-2001",
+        "customer_name": "Orchid Logistics",
+        "amount": 9600000,
+        "status": "pending",
+        "created_at": "2026-11-02T09:20:00+00:00"
+      }
+    },
+    {
+      "test_id": "I",
+      "scenario": "Employee cannot update own invoice",
+      "actor": "Alice / Alpha employee",
+      "method": "PATCH",
+      "resource": "/api/invoices/1001",
+      "expected_status": 403,
+      "actual_status": 403,
+      "expected_behavior": "Read permission does not imply update permission",
+      "observed_behavior": "http_status_matches=True; database_unchanged=True",
+      "reason": "role_not_permitted",
+      "checks": {
+        "http_status_matches": true,
+        "database_unchanged": true
+      },
+      "passed": true,
+      "response": {
+        "error": "Access denied",
+        "reason": "role_not_permitted"
+      },
+      "before": {
+        "id": 1001,
+        "company_id": 1,
+        "invoice_number": "INV-1001",
+        "customer_name": "Cedar Office Supplies",
+        "amount": 4250000,
+        "status": "pending",
+        "created_at": "2026-11-01T09:00:00+00:00"
+      },
+      "after": {
+        "id": 1001,
+        "company_id": 1,
+        "invoice_number": "INV-1001",
+        "customer_name": "Cedar Office Supplies",
+        "amount": 4250000,
+        "status": "pending",
+        "created_at": "2026-11-01T09:00:00+00:00"
+      }
+    },
+    {
+      "test_id": "J",
+      "scenario": "Missing CSRF token on authorized PATCH",
+      "actor": "Alpha Admin / Alpha administrator",
+      "method": "PATCH",
+      "resource": "/api/invoices/1001",
+      "expected_status": 400,
+      "actual_status": 400,
+      "expected_behavior": "Reject state change without a valid CSRF token",
+      "observed_behavior": "http_status_matches=True; database_unchanged=True",
+      "reason": "csrf_validation_failed",
+      "checks": {
+        "http_status_matches": true,
+        "database_unchanged": true
+      },
+      "passed": true,
+      "response": {
+        "error": "Request rejected",
+        "reason": "csrf_validation_failed"
+      },
+      "before": {
+        "id": 1001,
+        "company_id": 1,
+        "invoice_number": "INV-1001",
+        "customer_name": "Cedar Office Supplies",
+        "amount": 4250000,
+        "status": "pending",
+        "created_at": "2026-11-01T09:00:00+00:00"
+      },
+      "after": {
+        "id": 1001,
+        "company_id": 1,
+        "invoice_number": "INV-1001",
+        "customer_name": "Cedar Office Supplies",
+        "amount": 4250000,
+        "status": "pending",
+        "created_at": "2026-11-01T09:00:00+00:00"
+      }
+    },
+    {
+      "test_id": "K",
+      "scenario": "Mass assignment rejected",
+      "actor": "Alpha Admin / Alpha administrator",
+      "method": "PATCH",
+      "resource": "/api/invoices/1001",
+      "expected_status": 400,
+      "actual_status": 400,
+      "expected_behavior": "Refuse attempts to reassign invoice company",
+      "observed_behavior": "http_status_matches=True; database_unchanged=True",
+      "reason": "Only customer_name, amount and status may be changed.",
+      "checks": {
+        "http_status_matches": true,
+        "database_unchanged": true
+      },
+      "passed": true,
+      "response": {
+        "error": "Request rejected",
+        "reason": "Only customer_name, amount and status may be changed."
+      },
+      "before": {
+        "id": 1001,
+        "company_id": 1,
+        "invoice_number": "INV-1001",
+        "customer_name": "Cedar Office Supplies",
+        "amount": 4250000,
+        "status": "pending",
+        "created_at": "2026-11-01T09:00:00+00:00"
+      },
+      "after": {
+        "id": 1001,
+        "company_id": 1,
+        "invoice_number": "INV-1001",
+        "customer_name": "Cedar Office Supplies",
+        "amount": 4250000,
+        "status": "pending",
+        "created_at": "2026-11-01T09:00:00+00:00"
+      }
+    }
+  ],
+  "audit_events": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "company_id": 1,
+      "resource_type": "session",
+      "resource_id": null,
+      "action": "login",
+      "decision": "ALLOW",
+      "reason": "credentials_verified",
+      "timestamp": "2026-11-14T14:25:27.177+00:00"
+    },
+    {
+      "id": 2,
+      "user_id": 2,
+      "company_id": 1,
+      "resource_type": "session",
+      "resource_id": null,
+      "action": "login",
+      "decision": "ALLOW",
+      "reason": "credentials_verified",
+      "timestamp": "2026-11-14T14:25:27.337+00:00"
+    },
+    {
+      "id": 3,
+      "user_id": 1,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "1001",
+      "action": "read",
+      "decision": "ALLOW",
+      "reason": "same_company_and_permitted_role",
+      "timestamp": "2026-11-14T14:25:27.342+00:00"
+    },
+    {
+      "id": 4,
+      "user_id": 1,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "2001",
+      "action": "read",
+      "decision": "LAB_BYPASS",
+      "reason": "lab_missing_object_check",
+      "timestamp": "2026-11-14T14:25:27.344+00:00"
+    },
+    {
+      "id": 5,
+      "user_id": 1,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "2001",
+      "action": "read",
+      "decision": "DENY",
+      "reason": "company_mismatch",
+      "timestamp": "2026-11-14T14:25:27.346+00:00"
+    },
+    {
+      "id": 6,
+      "user_id": 1,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "2001",
+      "action": "update",
+      "decision": "DENY",
+      "reason": "company_mismatch",
+      "timestamp": "2026-11-14T14:25:27.348+00:00"
+    },
+    {
+      "id": 7,
+      "user_id": 1,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "2001",
+      "action": "update",
+      "decision": "LAB_BYPASS",
+      "reason": "lab_missing_object_and_role_checks",
+      "timestamp": "2026-11-14T14:25:27.349+00:00"
+    },
+    {
+      "id": 8,
+      "user_id": null,
+      "company_id": null,
+      "resource_type": "invoice",
+      "resource_id": "1001",
+      "action": "read",
+      "decision": "DENY",
+      "reason": "authentication_required",
+      "timestamp": "2026-11-14T14:25:27.351+00:00"
+    },
+    {
+      "id": 9,
+      "user_id": 2,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "1001",
+      "action": "update",
+      "decision": "ALLOW",
+      "reason": "same_company_and_permitted_role",
+      "timestamp": "2026-11-14T14:25:27.353+00:00"
+    },
+    {
+      "id": 10,
+      "user_id": 2,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "2001",
+      "action": "read",
+      "decision": "DENY",
+      "reason": "company_mismatch",
+      "timestamp": "2026-11-14T14:25:27.355+00:00"
+    },
+    {
+      "id": 11,
+      "user_id": 2,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "2001",
+      "action": "update",
+      "decision": "DENY",
+      "reason": "company_mismatch",
+      "timestamp": "2026-11-14T14:25:27.356+00:00"
+    },
+    {
+      "id": 12,
+      "user_id": 1,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "999999",
+      "action": "read",
+      "decision": "DENY",
+      "reason": "resource_not_found",
+      "timestamp": "2026-11-14T14:25:27.358+00:00"
+    },
+    {
+      "id": 13,
+      "user_id": 1,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "2001",
+      "action": "read",
+      "decision": "DENY",
+      "reason": "company_mismatch",
+      "timestamp": "2026-11-14T14:25:27.360+00:00"
+    },
+    {
+      "id": 14,
+      "user_id": 1,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "2001",
+      "action": "update",
+      "decision": "DENY",
+      "reason": "company_mismatch",
+      "timestamp": "2026-11-14T14:25:27.361+00:00"
+    },
+    {
+      "id": 15,
+      "user_id": 1,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "1001",
+      "action": "update",
+      "decision": "DENY",
+      "reason": "role_not_permitted",
+      "timestamp": "2026-11-14T14:25:27.363+00:00"
+    },
+    {
+      "id": 16,
+      "user_id": 2,
+      "company_id": 1,
+      "resource_type": "request",
+      "resource_id": "1001",
+      "action": "csrf_validation",
+      "decision": "DENY",
+      "reason": "csrf_validation_failed",
+      "timestamp": "2026-11-14T14:25:27.365+00:00"
+    },
+    {
+      "id": 17,
+      "user_id": 2,
+      "company_id": 1,
+      "resource_type": "invoice",
+      "resource_id": "1001",
+      "action": "update",
+      "decision": "DENY",
+      "reason": "invalid_update_payload",
+      "timestamp": "2026-11-14T14:25:27.366+00:00"
+    }
+  ]
+}

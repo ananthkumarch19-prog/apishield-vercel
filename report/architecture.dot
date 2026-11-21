@@ -1,0 +1,26 @@
+digraph G {
+graph [rankdir=TB, bgcolor="white", nodesep=0.3, ranksep=0.35, pad=0.15];
+node [shape=box, style="rounded,filled", fillcolor="#f1f7f6", color="#9dbbb3", fontname="DejaVu Sans", fontsize=11, margin="0.15,0.10"];
+edge [color="#4d676f", arrowsize=0.65, fontname="DejaVu Sans", fontsize=9];
+browser [label="Browser or local Requests client"];
+flask [label="Flask application
+Loopback and Host guards"];
+auth [label="Authenticated session
+CSRF for state-changing requests"];
+lookup [label="Protected invoice lookup"];
+policy [label="Central authorization
+Company ownership and role operation",fillcolor="#d9eee6"];
+allow [label="ALLOW
+Serialize or validated update"];
+deny [label="DENY
+401 / 403 / 404 without invoice data"];
+lab [label="Explicit local lab branch
+Ownership / role checks bypassed",fillcolor="#fff0dc",color="#d5ae6f"];
+db [label="SQLite invoices and users",shape=cylinder];
+audit [label="SQLite security events
+ALLOW / DENY / LAB_BYPASS",shape=cylinder];
+browser->flask->auth;auth->lookup;lookup->policy;policy->allow;policy->deny;
+auth->lab [label="lab mode only",style=dashed];lab->db [style=dashed];
+db->lookup [label="stored owner",constraint=false];allow->db [label="permitted update"];
+allow->audit;deny->audit;lab->audit [label="LAB_BYPASS",style=dashed];
+}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}APIShield{% endblock %} · Invoice security</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<aside class="sidebar">
+  <a class="brand" href="{{ url_for('web.dashboard') }}"><span class="brand-icon">A</span> APIShield</a>
+  <div class="workspace-label">INVOICE WORKSPACE</div>
+  <nav aria-label="Main navigation">
+    <a class="{{ 'active' if request.endpoint == 'web.dashboard' }}" href="{{ url_for('web.dashboard') }}">Overview</a>
+    <a class="{{ 'active' if request.endpoint in ['web.invoices','web.invoice_detail','web.edit_invoice'] }}" href="{{ url_for('web.invoices') }}">Company invoices</a>
+    <div class="nav-divider">SECURITY</div>
+    <a class="{{ 'active' if request.endpoint == 'web.security_lab' }}" href="{{ url_for('web.security_lab') }}">Security lab</a>
+    <a class="{{ 'active' if request.endpoint == 'web.monitoring' }}" href="{{ url_for('web.monitoring') }}">Security monitoring</a>
+    {% if config.LAB_MODE and current_user.role == 'admin' %}<a class="{{ 'active' if request.endpoint == 'web.test_results' }}" href="{{ url_for('web.test_results') }}">Test results</a>{% endif %}
+  </nav>
+  <div class="sidebar-bottom"><span class="status-dot"></span> Loopback only<br><small>127.0.0.1 · Fictional data</small></div>
+</aside>
+<div class="app-shell">
+  <header class="topbar"><span>{{ current_user.company_name }}</span><div class="identity"><span>{{ current_user.name }} <small>{{ current_user.role }}</small></span><form action="{{ url_for('auth.logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="text-button">Sign out</button></form></div></header>
+  <main>
+    {% if config.LAB_MODE %}<div class="lab-strip">LOCAL LAB MODE <span>Vulnerable endpoints enabled for fictional demonstrations on this laptop.</span></div>{% endif %}
+    {% for category, message in get_flashed_messages(with_categories=true) %}<div class="notice {{ category }}" role="status">{{ message }}</div>{% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer>APIShield · CNS mini-project · Server-side authorization on every protected invoice request</footer>
+</div>
+{% else %}
+  {% block public_content %}{% endblock %}
+{% endif %}
+</body></html>

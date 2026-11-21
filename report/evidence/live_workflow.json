@@ -1,0 +1,130 @@
+{
+  "timestamp": "2026-11-14T14:33:32.474158+00:00",
+  "transport": "Real HTTP using Requests, not a browser",
+  "passed": 9,
+  "checks": [
+    {
+      "name": "Live login and dashboard tenant scope",
+      "passed": true
+    },
+    {
+      "name": "Company-scoped HTML listing",
+      "passed": true
+    },
+    {
+      "name": "Direct HTML cross-company denial",
+      "passed": true,
+      "http": 403
+    },
+    {
+      "name": "Same Alice live session and target",
+      "passed": true,
+      "protected": {
+        "error": "Access denied",
+        "reason": "company_mismatch"
+      },
+      "lab": {
+        "invoice": {
+          "amount": "96000.00",
+          "company_id": 2,
+          "created_at": "2026-11-02T09:20:00+00:00",
+          "currency": "INR",
+          "customer_name": "Orchid Logistics",
+          "id": 2001,
+          "invoice_number": "INV-2001",
+          "status": "pending"
+        },
+        "reason": "lab_missing_object_check",
+        "warning": "Fictional local lab: authorization deliberately bypassed"
+      },
+      "statuses": [
+        403,
+        200
+      ]
+    },
+    {
+      "name": "HTML administrator update persisted",
+      "passed": true,
+      "amount": "43123.45"
+    },
+    {
+      "name": "Dashboard ran actual HTTP comparisons without changing dashboard invoice",
+      "passed": true,
+      "scenario_results": 15
+    },
+    {
+      "name": "Stored real decisions displayed in monitoring",
+      "passed": true
+    },
+    {
+      "name": "Live reset restored the fictional invoice",
+      "passed": true
+    },
+    {
+      "name": "Live logout revoked this client session",
+      "passed": true
+    }
+  ],
+  "captures": [
+    {
+      "file": "01_login.html",
+      "path": "/login",
+      "status": 200,
+      "kind": "Actual server HTML, CSRF redacted; not a browser screenshot"
+    },
+    {
+      "file": "02_alice_overview.html",
+      "path": "/dashboard",
+      "status": 200,
+      "kind": "Actual server HTML, CSRF redacted; not a browser screenshot"
+    },
+    {
+      "file": "03_company_invoices.html",
+      "path": "/invoices",
+      "status": 200,
+      "kind": "Actual server HTML, CSRF redacted; not a browser screenshot"
+    },
+    {
+      "file": "04_invoice_details.html",
+      "path": "/invoices/1001",
+      "status": 200,
+      "kind": "Actual server HTML, CSRF redacted; not a browser screenshot"
+    },
+    {
+      "file": "05_cross_company_denied.html",
+      "path": "/invoices/2001",
+      "status": 403,
+      "kind": "Actual server HTML, CSRF redacted; not a browser screenshot"
+    },
+    {
+      "file": "06_authorized_management.html",
+      "path": "/invoices/1001/edit",
+      "status": 200,
+      "kind": "Actual server HTML, CSRF redacted; not a browser screenshot"
+    },
+    {
+      "file": "07_saved_update.html",
+      "path": "/invoices/1001",
+      "status": 200,
+      "kind": "Actual server HTML, CSRF redacted; not a browser screenshot"
+    },
+    {
+      "file": "08_security_lab.html",
+      "path": "/security-lab",
+      "status": 200,
+      "kind": "Actual server HTML, CSRF redacted; not a browser screenshot"
+    },
+    {
+      "file": "09_test_results.html",
+      "path": "/test-results",
+      "status": 200,
+      "kind": "Actual server HTML, CSRF redacted; not a browser screenshot"
+    },
+    {
+      "file": "10_security_monitoring.html",
+      "path": "/security-monitoring",
+      "status": 200,
+      "kind": "Actual server HTML, CSRF redacted; not a browser screenshot"
+    }
+  ]
+}
