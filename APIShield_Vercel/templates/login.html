@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Sign in{% endblock %}
+{% block public_content %}
+<div class="login-layout">
+  <section class="login-story"><a class="brand" href="/login"><span class="brand-icon">A</span> APIShield</a><div><div class="eyebrow">CNS MINI-PROJECT / 2026</div><h1>A valid login.<br>A clear boundary.</h1><p>Invoice access belongs to the right company. APIShield checks ownership and permissions on the server, for every protected request.</p><div class="login-facts"><span>02 fictional companies</span><span>04 demo identities</span><span>{{ 'Hosted Python application' if config.PUBLIC_DEMO else 'Local Python application' }}</span></div></div><small>Authentication establishes identity. Authorization controls access.</small></section>
+  <section class="login-panel"><div class="login-form"><div class="eyebrow">INVOICE WORKSPACE</div><h2>Welcome back</h2><p class="muted">Sign in to your company's invoice workspace.</p>
+    {% if error %}<div class="notice danger" role="alert">{{ error }}</div>{% endif %}
+    <form method="post" action="{{ url_for('auth.login') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="username" required placeholder="alice@alpha.test" maxlength="200">
+      <label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="200">
+      <button class="button full" type="submit">Sign in to APIShield</button>
+    </form>
+    <details class="demo-accounts"><summary>Fictional demo accounts</summary><p>All accounts use <code>Demo@2026!</code></p><dl><dt>Alpha employee</dt><dd>alice@alpha.test</dd><dt>Alpha administrator</dt><dd>admin@alpha.test</dd><dt>Beta employee</dt><dd>bob@beta.test</dd><dt>Beta administrator</dt><dd>admin@beta.test</dd></dl></details>
+    <p class="small muted">{% if config.PUBLIC_DEMO %}Public educational demo. Accounts and invoices are shared fictional examples.{% else %}Runs only at 127.0.0.1. Use fictional data in this educational application.{% endif %}</p>
+  </div></section>
+</div>
+{% endblock %}

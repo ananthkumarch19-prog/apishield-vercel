@@ -1,0 +1,3 @@
+<div class="table-scroll"><table><thead><tr><th>Invoice</th><th>Customer</th><th>Amount (INR)</th><th>Status</th><th>Action</th></tr></thead><tbody>
+{% for invoice in invoices %}<tr><td><a class="strong" href="{{ url_for('web.invoice_detail', invoice_id=invoice.id) }}">{{ invoice.invoice_number }}</a><small>Resource #{{ invoice.id }}</small></td><td>{{ invoice.customer_name }}</td><td class="numeric">{{ invoice.amount|money }}</td><td><span class="badge {{ invoice.status }}">{{ invoice.status }}</span></td><td><a href="{{ url_for('web.invoice_detail', invoice_id=invoice.id) }}">View invoice →</a></td></tr>{% endfor %}
+</tbody></table></div>
