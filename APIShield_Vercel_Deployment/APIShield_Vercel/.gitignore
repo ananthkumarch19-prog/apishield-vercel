@@ -1,0 +1,10 @@
+.env
+.env.*
+.venv/
+.vercel/
+instance/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.sqlite
+pgdata/

@@ -1,0 +1,3 @@
+{% extends 'base.html' %}{% block title %}Company invoices{% endblock %}
+{% block content %}<div class="page-heading"><div><div class="eyebrow">BUSINESS APPLICATION</div><h1>My company's invoices</h1><p>{{ current_user.company_name }} · {{ invoices|length }} records returned by the company-scoped query.</p></div><span class="badge allow">{{ current_user.role }}</span></div>
+<section class="panel">{% include '_invoices.html' %}</section><p class="muted small">The server derives company membership from your authenticated identity. Changing a URL, query field or browser control cannot grant protected access to another company.</p>{% endblock %}

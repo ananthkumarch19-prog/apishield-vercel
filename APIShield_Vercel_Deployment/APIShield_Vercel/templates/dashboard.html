@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% block title %}Overview{% endblock %}
+{% block content %}
+<div class="page-heading"><div><div class="eyebrow">YOUR COMPANY WORKSPACE</div><h1>Invoice overview</h1><p>{{ current_user.company_name }} · Access scoped to your authenticated company.</p></div><a class="button" href="{{ url_for('web.invoices') }}">Browse invoices</a></div>
+<div class="stats-grid"><article class="stat"><span>Company invoices</span><strong>{{ invoices|length }}</strong><small>Only your organization's records</small></article><article class="stat"><span>Total invoice value</span><strong class="amount"><small>INR</small> {{ total|money }}</strong><small>Sum of stored invoice amounts</small></article><article class="stat"><span>Awaiting payment</span><strong>{{ pending }}</strong><small>Pending and overdue invoices</small></article></div>
+<section class="policy-banner"><div><span class="eyebrow">YOUR ACCESS POLICY</span><h2>{{ 'Read and manage company invoices' if current_user.role == 'admin' else 'Read company invoices' }}</h2><p>{{ 'Administrator permissions apply only within your own company.' if current_user.role == 'admin' else 'Invoice updates require an administrator from your own company.' }}</p></div><span class="boundary">Company boundary enforced</span></section>
+<section class="panel"><div class="section-heading"><h2>Company invoices</h2><a href="{{ url_for('web.invoices') }}">View all</a></div>{% include '_invoices.html' %}</section>
+<section class="panel"><div class="section-heading"><h2>Recent authorization events</h2><a href="{{ url_for('web.monitoring') }}">Open monitoring</a></div>{% include '_events.html' %}</section>
+{% endblock %}
